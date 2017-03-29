@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 var gulp = require('gulp');
+var eol = require('gulp-eol');
 var tsb = require('gulp-tsb');
 var assign = require('object-assign');
 var fs = require('fs');
@@ -53,9 +54,6 @@ gulp.task('release', ['clean-release','compile'], function() {
 			bundleOne('src/mode', ['vs/language/typescript/lib/typescriptServices']),
 			bundleOne('src/worker', ['vs/language/typescript/lib/typescriptServices'])
 		)
-		.pipe(uglify({
-			preserveComments: 'some'
-		}))
 		.pipe(es.through(function(data) {
 			data.contents = new Buffer(
 				BUNDLED_FILE_HEADER
@@ -77,7 +75,9 @@ var tsSources = require('./tsconfig.json').include.concat(require('./tsconfig.js
 function compileTask() {
 	return merge(
 		gulp.src('lib/*.js', { base: '.' }),
-		gulp.src(tsSources).pipe(compilation())
+		gulp.src(tsSources)
+            .pipe(compilation())
+            .pipe(eol())
 	)
 	.pipe(gulp.dest('out'));
 }
